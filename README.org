@@ -1,5 +1,6 @@
 #+TITLE: Mailman
 #+STARTUP: indent
+#+OPTIONS: toc:nil num:nil
 
 This is a docker container that synchronizes an IMAP account and
 serves it locally with a hard coded password.
@@ -13,6 +14,7 @@ bind to a local port.
   docker run \
 	 --restart always \
 	 -p 127.0.0.1:143:143 \
+	 -v ~/Maildir:/home/docker/Maildir \
 	 -e IMAP_USER="youremail@gmail.com" \
 	 -e IMAP_PASSWORD="yoursecretpassword" \
 	 --name mailman-personal \
