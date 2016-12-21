@@ -1,0 +1,69 @@
+#+TITLE: Mailman
+#+STARTUP: indent
+
+This is a docker container that synchronizes an IMAP account and
+serves it locally with a hard coded password.
+
+* Running
+
+Run the docker container with these environment variables.  Be sure to
+bind to a local port.
+
+#+BEGIN_SRC sh
+  docker run \
+	 --restart always \
+	 -p 127.0.0.1:143:143 \
+	 -e IMAP_USER="youremail@gmail.com" \
+	 -e IMAP_PASSWORD="yoursecretpassword" \
+	 --name mailman-personal \
+	 -d arecker/mailman:latest
+#+END_SRC
+
+Put this in your =~/.authinfo= (yes... it really is a hard-coded
+password).  These are the credentials for the mail server running in
+the container.
+
+#+BEGIN_EXAMPLE
+  machine localhost login docker password frozenfish port 143
+#+END_EXAMPLE
+
+You can now connect to the mail server through clients like gnus.
+Here is what my config looks like.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'gnus-secondary-select-methods
+	 '(nnimap "personal"
+    		  (nnimap-stream network)
+    		  (nnimap-address "localhost")
+    		  (nnimap-server-port 143)
+    		  (nnimap-authenticator login)))
+#+END_SRC
+
+* Customization
+
+You can over ride certain config files by mounting over them.  For
+example, you could do something like this to provide your own
+=.offlineimaprc=.
+
+#+BEGIN_SRC sh
+  docker run -v yourconfig.conf:/home/docker/.offlineimaprc # ...
+#+END_SRC
+
+Or provide your own python file...
+
+#+BEGIN_SRC sh
+  docker run -v yourpython.py:/home/docker/.offlineimap.py #...
+#+END_SRC
+
+* Debugging
+
+Since I was having so much trouble with dovecot, the config logs
+verbosely to =/var/log/dovecot.log= within the container.  That should
+help you with your own dovecot configuration journey.
+
+* Improvment
+
+Here are some things that probably need improvement.
+
+- Get rid of the =frozenfish= password silliness (anonymous login?)
+- Better logging for offlineimap and dovecot
