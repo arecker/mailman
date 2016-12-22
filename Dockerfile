@@ -8,5 +8,6 @@ COPY offlineimap.conf /home/docker/.offlineimaprc
 COPY offlineimap.py /home/docker/.offlineimap.py
 RUN mkdir -p /home/docker/Maildir
 RUN chown -R docker:docker /home/docker
+RUN chmod -R 775 /home/docker/Maildir
 COPY entry.sh /entry.sh
 ENTRYPOINT "/entry.sh"
