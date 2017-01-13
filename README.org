@@ -1,71 +1,40 @@
 #+TITLE: Mailman
-#+STARTUP: indent
-#+OPTIONS: toc:nil num:nil
 
-This is a docker container that synchronizes an IMAP account and
-serves it locally with a hard coded password.
+This is a drop-in setup for Gnus.  I have it setup for both my
+personal and work account, but it should be easy enough to tweak
+[[file:docker-compose.yml][docker-compose.yml]] for only one account.
 
-* Running
-
-Run the docker container with these environment variables.  Be sure to
-bind to a local port.
-
-#+BEGIN_SRC sh
-  docker run \
-	 --restart always \
-	 -p 127.0.0.1:143:143 \
-	 -v ~/Maildir:/home/docker/Maildir \
-	 -e IMAP_USER="youremail@gmail.com" \
-	 -e IMAP_PASSWORD="yoursecretpassword" \
-	 --name mailman-personal \
-	 -d arecker/mailman:latest
-#+END_SRC
-
-Put this in your =~/.authinfo= (yes... it really is a hard-coded
-password).  These are the credentials for the mail server running in
-the container.
+Create a ~/.mailman.env file for your credentials
 
 #+BEGIN_EXAMPLE
-  machine localhost login docker password frozenfish port 143
+IMAP_USER=youremail@gmailc.om
+IMAP_PASSWORD=sosecret
 #+END_EXAMPLE
 
-You can now connect to the mail server through clients like gnus.
-Here is what my config looks like.
+Run =docker-compose up -d= in this directory.
+
+As of now, you also need these hard coded credentials in your
+~/.authinfo
+
+#+BEGIN_EXAMPLE
+  machine localhost login mailman password frozenfish port 8143
+  machine localhost login mailman password frozenfish port 8144
+#+END_EXAMPLE
+
+Add something like this to your gnus config.
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'gnus-secondary-select-methods
-	 '(nnimap "personal"
-    		  (nnimap-stream network)
-    		  (nnimap-address "localhost")
-    		  (nnimap-server-port 143)
-    		  (nnimap-authenticator login)))
+	'(nnimap "personal"
+	     (nnimap-stream network)
+	     (nnimap-address "localhost")
+	     (nnimap-server-port 8143)
+	     (nnimap-authenticator login)))
+
+  (add-to-list 'gnus-secondary-select-methods
+	'(nnimap "work"
+	     (nnimap-stream network)
+	     (nnimap-address "localhost")
+	     (nnimap-server-port 8144)
+	     (nnimap-authenticator login)))
 #+END_SRC
-
-* Customization
-
-You can over ride certain config files by mounting over them.  For
-example, you could do something like this to provide your own
-=.offlineimaprc=.
-
-#+BEGIN_SRC sh
-  docker run -v yourconfig.conf:/home/docker/.offlineimaprc # ...
-#+END_SRC
-
-Or provide your own python file...
-
-#+BEGIN_SRC sh
-  docker run -v yourpython.py:/home/docker/.offlineimap.py #...
-#+END_SRC
-
-* Debugging
-
-Since I was having so much trouble with dovecot, the config logs
-verbosely to =/var/log/dovecot.log= within the container.  That should
-help you with your own dovecot configuration journey.
-
-* Improvment
-
-Here are some things that probably need improvement.
-
-- Get rid of the =frozenfish= password silliness (anonymous login?)
-- Better logging for offlineimap and dovecot
