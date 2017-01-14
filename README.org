@@ -1,40 +1,12 @@
 #+TITLE: Mailman
 
-This is a drop-in setup for Gnus.  I have it setup for both my
-personal and work account, but it should be easy enough to tweak
-[[file:docker-compose.yml][docker-compose.yml]] for only one account.
-
-Create a ~/.mailman.env file for your credentials
-
-#+BEGIN_EXAMPLE
-IMAP_USER=youremail@gmailc.om
-IMAP_PASSWORD=sosecret
-#+END_EXAMPLE
-
-Run =docker-compose up -d= in this directory.
-
-As of now, you also need these hard coded credentials in your
-~/.authinfo
-
-#+BEGIN_EXAMPLE
-  machine localhost login mailman password frozenfish port 8143
-  machine localhost login mailman password frozenfish port 8144
-#+END_EXAMPLE
-
-Add something like this to your gnus config.
+This is a version that has been tweaked for a single account.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'gnus-secondary-select-methods
-	'(nnimap "personal"
-	     (nnimap-stream network)
-	     (nnimap-address "localhost")
-	     (nnimap-server-port 8143)
-	     (nnimap-authenticator login)))
-
-  (add-to-list 'gnus-secondary-select-methods
-	'(nnimap "work"
-	     (nnimap-stream network)
-	     (nnimap-address "localhost")
-	     (nnimap-server-port 8144)
-	     (nnimap-authenticator login)))
+  (setq 'gnus-secondary-select-methods
+	'((nnimap "mail"
+		  (nnimap-stream network)
+		  (nnimap-address "localhost")
+		  (nnimap-server-port 143)
+		  (nnimap-authenticator login))))
 #+END_SRC

@@ -2,52 +2,27 @@ version: '2'
 
 services:
 
-  mbsync-personal:
+  mbsync:
     build: mbsync
     image: arecker/mbsync:latest
-    container_name: mbsync-personal
+    container_name: mbsync
     network_mode: bridge
     restart: always
     volumes:
-      - personal:/home/mailman/Maildir
+      - maildir:/home/mailman/Maildir
     env_file:
-      - ~/.mailman-personal.env
+      - ~/.mailman.env
 
-  mbsync-work:
-    build: mbsync
-    image: arecker/mbsync:latest
-    container_name: mbsync-work
-    network_mode: bridge
-    restart: always
-    volumes:
-      - work:/home/mailman/Maildir
-    env_file:
-      - ~/.mailman-work.env
-
-  dovecot-personal:
+  dovecot:
     build: dovecot
     image: arecker/dovecot:latest
-    container_name: dovecot-personal
+    container_name: dovecot
     network_mode: bridge
     restart: always
     ports:
-      - 127.0.0.1:8143:143
+      - 127.0.0.1:143:143
     volumes:
-      - personal:/home/mailman/Maildir
-
-  dovecot-work:
-    build: dovecot
-    image: arecker/dovecot:latest
-    container_name: dovecot-work
-    network_mode: bridge
-    restart: always
-    ports:
-      - 127.0.0.1:8144:143
-    volumes:
-      - work:/home/mailman/Maildir
+      - maildir:/home/mailman/Maildir
 
 volumes:
-  personal:
-    driver: local
-  work:
-    driver: local
+  maildir: {}
